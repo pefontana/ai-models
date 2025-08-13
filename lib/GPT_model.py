@@ -1,3 +1,4 @@
+import torch
 import torch.nn
 from transformer_block import TransformerBlock
 from feedforward import LayerNorm
@@ -21,17 +22,17 @@ class GPTModel(torch.nn.Module):
         self.pos_emb = torch.nn.Embedding(cfg["context_length"], cfg["emb_dim"])
         self.drop_emb = torch.nn.Dropout(cfg["drop_rate"])
         
-        self.trf_blocks = [TransformerBlock(cfg) for _ in range(cfg["n_layers"])]
+        self.trf_blocks = torch.nn.ModuleList([TransformerBlock(cfg) for _ in range(cfg["n_layers"])])
 
 
         self.final_norm = LayerNorm(cfg["emb_dim"])
-        self.output =  torch.nn.Linear(cfg["emb_dim"], cfg["vocab_size"], bias=False),
+        self.output = torch.nn.Linear(cfg["emb_dim"], cfg["vocab_size"], bias=False)
 
 
     def forward(self, in_idx):
 
-        # todo
-        x = self.tok_emb(in_idx) + self.pos_emb(in_idx)
+        pos_idx = torch.arange(seq_len, device=in_idx.device)
+        x = self.tok_emb(in_idx) + self.pos_emb(pos_idx)
         x =  self.drop_emb(x)
 
         for transformer in self.trf_blocks:
