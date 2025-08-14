@@ -31,6 +31,8 @@ class GPTModel(torch.nn.Module):
 
     def forward(self, in_idx):
 
+        print("in_idx.shape()", in_idx.shape)
+        batch_size, seq_len = in_idx.shape
         pos_idx = torch.arange(seq_len, device=in_idx.device)
         x = self.tok_emb(in_idx) + self.pos_emb(pos_idx)
         x =  self.drop_emb(x)
